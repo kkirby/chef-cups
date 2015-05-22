@@ -28,7 +28,7 @@ end
 service 'cups' do
   pattern 'cupsd'
   supports :restart => true, :reload => true, :status => true
-  action :start
+  action [:enable,:start]
   subscribes :reload, 'template[/etc/cups/cupsd.conf]'
 end
 
@@ -53,11 +53,14 @@ oldprinters = []
 printers.each do |px|
   oldprinters << px['name']
 end
-
+#sudo lpadmin -p SHINKO_CHC-S2145 -E -v $uri -P $driver
 node['cups']['printers'].each do |newprinter|
   # newprinter.first[0] is the printer name
-  cmdline = "lpadmin -p #{newprinter.first[0]} -E -v #{newprinter.first[1]['uri']}"
-  if newprinter.first[1]['model']
+  puts newprinter.inspect
+  cmdline = "lpadmin -p #{newprinter.first[0]} -E -v \"#{newprinter.first[1]['uri']}\""
+  if newprinter.first[1]['driver']
+	cmdline << " -P \"#{newprinter.first[1]['driver']}\""
+  elsif newprinter.first[1]['model']
     cmdline << " -m #{newprinter.first[1]['model']}"
   else
     if node['platform_family'] == 'debian'

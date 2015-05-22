@@ -13,7 +13,6 @@ LogLevel info
 # Administrator user group...
 SystemGroup <%= node['cups']['systemgroups'] %>
 
-
 <% if node['cups']['share_printers'] -%>
 # Allow remote access
 Port 631
@@ -32,22 +31,43 @@ BrowseRemoteProtocols dnssd CUPS
 # Disable printer sharing.
 Browsing Off
 <% end -%>
+
+# Default authentication type, when authentication is required...
+<% if node['cups']['no_auth'] -%>
+DefaultAuthType None
+<% else -%>
+DefaultAuthType Basic
 BrowseOrder allow,deny
 # (Change '@LOCAL' to 'ALL' if using directed broadcasts from another subnet.)
 BrowseAllow @LOCAL
-
-# Default authentication type, when authentication is required...
-DefaultAuthType Basic
+<% end -%>
 
 # Restrict access to the server...
 <Location />
+<% if node['cups']['no_auth'] -%>
+  Order deny,allow
+  Allow from all
+<% else -%>
   Order allow,deny
+<% end -%>
 <% if node['cups']['share_printers'] -%>
   # Allow shared printing...
   Allow @LOCAL
 <% end -%>
 </Location>
 
+<% if node['cups']['no_auth'] -%>
+<Policy default>
+	JobPrivateAccess all
+	JobPrivateValues all
+	SubscriptionPrivateAccess all
+	SubscriptionPrivateValues all
+	<Limit All>
+		Order deny,allow
+		Allow from all
+	</Limit>
+</Policy>
+<% else -%>
 # Restrict access to the admin pages...
 <Location /admin>
   Encryption Required
@@ -93,8 +113,14 @@ DefaultAuthType Basic
     Order deny,allow
   </Limit>
 </Policy>
+<% end -%>
 
-MaxLogSize 2000000000
+MaxLogSize <%= node['cups']['max_log_size']%>
+LogLevel <%= node['cups']['log_level']%>
+WebInterface <%= node['cups']['web_interface']%>
+ErrorPolicy <%= node['cups']['error_policy']%>
+JobRetryInterval <%= node['cups']['job_rety_interval']%>
+JobRetryLimit <%= node['cups']['job_retry_limit']%>
 
 #
 # End of "$Id: cupsd.conf.in 7199 2008-01-08 00:16:30Z mike $".

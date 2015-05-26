@@ -49,10 +49,10 @@ BrowseAllow @LOCAL
   Allow from all
 <% else -%>
   Order allow,deny
-<% end -%>
-<% if node['cups']['share_printers'] -%>
-  # Allow shared printing...
-  Allow @LOCAL
+  <% if node['cups']['share_printers'] -%>
+    # Allow shared printing...
+    Allow @LOCAL
+  <% end -%>
 <% end -%>
 </Location>
 

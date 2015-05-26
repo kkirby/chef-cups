@@ -59,7 +59,12 @@ node['cups']['printers'].each do |newprinter|
   puts newprinter.inspect
   cmdline = "lpadmin -p #{newprinter.first[0]} -E -v \"#{newprinter.first[1]['uri']}\""
   if newprinter.first[1]['driver']
-	cmdline << " -P \"#{newprinter.first[1]['driver']}\""
+	template "/tmp/driver.ppd" do
+		source newprinter.first[1]['driver']['template']
+		action :create
+		cookbook newprinter.first[1]['driver']['cookbook']
+	end
+	cmdline << " -P \"/tmp/driver.ppd\""
   elsif newprinter.first[1]['model']
     cmdline << " -m #{newprinter.first[1]['model']}"
   else

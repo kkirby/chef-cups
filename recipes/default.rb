@@ -18,11 +18,20 @@
 #
 #
 package 'cups'
-
-template '/etc/cups/cupsd.conf' do
-  owner 'root'
-  group 'lp'
-  mode '0640'
+if node["cups"]["template"]
+	template '/etc/cups/cupsd.conf' do
+	  owner 'root'
+	  group 'lp'
+	  mode '0640'
+	  cookbook node["cups"]["template"]["cookbook"]
+	  source node["cups"]["template"]["file"]
+	end
+else
+	template '/etc/cups/cupsd.conf' do
+	  owner 'root'
+	  group 'lp'
+	  mode '0640'
+	end
 end
 
 service 'cups' do

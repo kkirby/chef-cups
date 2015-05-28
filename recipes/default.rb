@@ -31,8 +31,8 @@ template '/etc/cups/cups-browsed.conf' do
   owner 'root'
   group 'lp'
   mode '0640'
-  cookbook node["cups"]["cupsd"]["cookbook"]
-  source node["cups"]["cupsd"]["source"]
+  cookbook node["cups"]["cups-browsed"]["cookbook"]
+  source node["cups"]["cups-browsed"]["source"]
 end
 
 service 'cups' do
@@ -63,14 +63,16 @@ oldprinters = []
 printers.each do |px|
   oldprinters << px['name']
 end
-#sudo lpadmin -p SHINKO_CHC-S2145 -E -v $uri -P $driver
 node['cups']['printers'].each do |newprinter|
   # newprinter.first[0] is the printer name
-  puts newprinter.inspect
   cmdline = "lpadmin -p #{newprinter.first[0]} -E -v \"#{newprinter.first[1]['uri']}\""
   if newprinter.first[1]['driver']
 	template "/tmp/driver.ppd" do
-		source newprinter.first[1]['driver']['source']
+		if newprinter.first[1]['driver']['source'] == "auto"
+			source newprinter.first[1]['driver']['source']
+		else
+			source newprinter.first[0] + ".erb"
+		end
 		action :create
 		cookbook newprinter.first[1]['driver']['cookbook']
 	end

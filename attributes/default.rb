@@ -1,4 +1,8 @@
 default['cups']['default_printer'] = nil
+default['cups']['cupsd']['cookbook'] = 'cups';
+default['cups']['cupsd']['source'] = 'cupsd.conf.erb';
+default['cups']['cups-browsed']['cookbook'] = 'cups';
+default['cups']['cups-browsed']['source'] = 'cups-browsed.conf.erb';
 default['cups']['printers'] = []
 default['cups']['systemgroups'] = "sys root"
 default['cups']['share_printers'] = true

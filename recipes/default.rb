@@ -18,20 +18,21 @@
 #
 #
 package 'cups'
-if node["cups"]["template"]
-	template '/etc/cups/cupsd.conf' do
-	  owner 'root'
-	  group 'lp'
-	  mode '0640'
-	  cookbook node["cups"]["template"]["cookbook"]
-	  source node["cups"]["template"]["file"]
-	end
-else
-	template '/etc/cups/cupsd.conf' do
-	  owner 'root'
-	  group 'lp'
-	  mode '0640'
-	end
+
+template '/etc/cups/cupsd.conf' do
+  owner 'root'
+  group 'lp'
+  mode '0640'
+  cookbook node["cups"]["cupsd"]["cookbook"]
+  source node["cups"]["cupsd"]["source"]
+end
+
+template '/etc/cups/cups-browsed.conf' do
+  owner 'root'
+  group 'lp'
+  mode '0640'
+  cookbook node["cups"]["cupsd"]["cookbook"]
+  source node["cups"]["cupsd"]["source"]
 end
 
 service 'cups' do
@@ -69,7 +70,7 @@ node['cups']['printers'].each do |newprinter|
   cmdline = "lpadmin -p #{newprinter.first[0]} -E -v \"#{newprinter.first[1]['uri']}\""
   if newprinter.first[1]['driver']
 	template "/tmp/driver.ppd" do
-		source newprinter.first[1]['driver']['template']
+		source newprinter.first[1]['driver']['source']
 		action :create
 		cookbook newprinter.first[1]['driver']['cookbook']
 	end
